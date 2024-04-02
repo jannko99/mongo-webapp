@@ -1,0 +1,37 @@
+version: '3.1'
+
+services:
+
+  mongo:
+    image: mongo:4.4
+    restart: always
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: ${DB_ROOT_USER}
+      MONGO_INITDB_ROOT_PASSWORD: ${DB_ROOT_PW}
+    networks:
+      - mongo-backend
+     
+  mongo-express:
+    depends_on:
+      - mongo
+    image: mongo-express
+    restart: always
+    ports:
+      - 8081:8081
+    environment:
+      ME_CONFIG_BASICAUTH_USERNAME: ${WEB_CONSOLE_USER}
+      ME_CONFIG_BASICAUTH_PASSWORD: ${WEB_CONSOLE_PW}
+      ME_CONFIG_MONGODB_ADMINUSERNAME: ${DB_ROOT_USER}
+      ME_CONFIG_MONGODB_ADMINPASSWORD: ${DB_ROOT_PW}
+      ME_CONFIG_MONGODB_URL: mongodb://${DB_ROOT_USER}:${DB_ROOT_PW}@mongo-webapp-mongo-1:27017/
+    networks:
+      - mongo-frontend
+      - mongo-backend
+
+networks:
+  mongo-frontend:
+    name: external-driver
+    driver: bridge
+  mongo-backend:
+    name: internal-driver
+    driver: bridge
